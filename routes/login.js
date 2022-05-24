@@ -1,31 +1,14 @@
 var express = require('express');
 var router = express.Router();
+// jsonwebtoken用于生成JWT字符串
+const jwt = require('jsonwebtoken')
+// express-jwt用于将JWT字符串解析还原成JSON对象
+const expressJWT = require('express-jwt')
 
-// router.post('/', (req, res, next) => {
-//     // let data2 = db.collection('student').find(req.body.userName);
-//     // data2.toArray((err, result) => {
-//     //   let pass = result.filter(item => {
-//     //       return item.userName === req.body.userName
-//     //   })
-//     //   console.log(pass);
-//     // })
-//     let data = {
-//         userName: req.body.userName,
-//         password: req.body.password,
-//         // sex = 1 男， sex = 0 女
-//         sex: req.body.sex || 0,
-//         roles: 'admin',
-//         address: req.body.address
-//     }
-//     // console.log(db);
-//     db.collection('admin').insertOne(data, (err, result) => {
-//         if (err) throw err
-//         res.send({
-//             code: 200,
-//             msg: '新增学生成功'
-//         })
-//     })
-// })
+// 定义secret秘钥
+const secretKey = 'hello'
+
+
 // 登录页面post请求
 router.post('/', (req, res, next) => {
     if (req.body.userName && req.body.password) {
@@ -35,19 +18,30 @@ router.post('/', (req, res, next) => {
             let pass = result.filter(currentValue => {
                 return currentValue.username === req.body.username && currentValue.password === req.body.password
             })
-            console.log(pass);
-            pass.length > 0 ? res.send({
-                code: 200,
-                msg: '登录成功',
-                user: {
-                    username: pass[0].userName,
-                    password: pass[0].password,
-                    roles: pass[0].roles
-                }
-            }) : res.send({
-                code: 400,
-                msg: '用户名或密码错误'
-            })
+            if (pass.length) {
+                /* 
+                    登录成功生成token
+                    参数1：用户信息 **不能把密码加密到token里
+                    参数2：加密的秘钥
+                    参数3：配置对象，可以是当前token的有效期
+                */
+                const tokenStr = jwt.sign({userName: pass[0].userName}, secretKey, { expiresIn: '30s'})
+                res.send({
+                    code: 200,
+                    msg: '登录成功',
+                    user: {
+                        username: pass[0].userName,
+                        password: pass[0].password,
+                        roles: pass[0].roles,
+                        token: tokenStr
+                    }
+                })
+            } else {
+                res.send({
+                    code: 400,
+                    msg: '用户名或密码错误'
+                })
+            }
         });
     } else {
         res.send({

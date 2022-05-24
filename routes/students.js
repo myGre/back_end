@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router()
-var mdb = require('../libs/config1')
+var mdb = require('../libs/studentList')
 // 新增学生
 router.post('/addStudent',(req, res, next) => {
     // 添加数据库回调函数
@@ -8,29 +8,7 @@ router.post('/addStudent',(req, res, next) => {
 })
 // 编辑某一学生信息
 router.post('/emitStudent', (req, res, next) => {
-    let {
-        id,
-        userName,
-        password,
-        address,
-        sex
-    } = req.body
-    db.collection('students').updateOne({
-        id
-    }, {
-        $set: {
-            userName,
-            password,
-            address,
-            sex
-        }
-    }, err => {
-        if (err) throw err
-        res.send({
-            code: 200,
-            msg: '修改成功'
-        })
-    })
+    mdb.emit('students', req.body, res)
 })
 // 删除某一学生
 router.post('/del', (req, res, next) => {

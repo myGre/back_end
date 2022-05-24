@@ -41,6 +41,8 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/login', require('./routes/login'))
 app.use('/student', require('./routes/students'))
+app.use('/workList', require('./routes/workList'))
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
