@@ -83,7 +83,8 @@ exports.search = async function (collectionName, name, res) {
   let client = await connectDB(url)
   let db = client.db('mydb')
   let data = db.collection(collectionName).find({
-    userName: name
+    // userName: name
+    userName: {$regex: name}
   })
   let total = await data.count()
   data.toArray((err, result) => {
