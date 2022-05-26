@@ -4,7 +4,7 @@ var mdb = require('../libs/studentList')
 // 新增学生
 router.post('/addStudent',(req, res, next) => {
     // 添加数据库回调函数
-    mdb.insert('students', req.body, res)
+    mdb.insert('students', req, res)
 })
 // 编辑某一学生信息
 router.post('/emitStudent', (req, res, next) => {

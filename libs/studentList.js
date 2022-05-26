@@ -5,7 +5,7 @@
  * @param {String} url：数据库的地址
  */
 let url = 'mongodb://localhost:27017/mydb'
-
+const JwtUtil = require('../jwt')
 function connectDB(url) {
   let MongoClient = require('mongodb').MongoClient
   let client = MongoClient.connect(url, {
@@ -28,19 +28,23 @@ exports.insert = async function (collectionName, json, res) {
   let db = client.db('mydb')
   let total = await db.collection(collectionName).count()
   // 要存入数据库的数据
+  let token = json.headers.token
+  let jwt = new JwtUtil(token)
+  let teacher = jwt.verifyToken()
   let data = {
     id: total,
-    userName: json.userName,
-    password: json.password,
+    teacher,
+    userName: json.body.userName,
+    password: json.body.password,
     regtime: formatDate(new Date()),
     // sex = 1 男， sex = 0 女
-    sex: json.sex || 0,
+    sex: json.body.sex || 0,
     roles: 'student',
-    address: json.address
+    address: json.body.address
   }
   // 在数据库中查找该学生是否存在
   let pass = db.collection(collectionName).find({
-    userName: json.userName
+    userName: json.body.userName
   })
   pass.toArray((err, result) => {
     if (err) throw err
