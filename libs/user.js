@@ -120,11 +120,11 @@ exports.emit = async function (collectionName, json, res) {
   let client = await connectDB(url)
   let db = client.db('mydb')
   let {
-    id,
+    _id,
     password
   } = json
   db.collection(collectionName).updateOne({
-    id
+    _id
   }, {
     $set: {
       password
@@ -137,6 +137,32 @@ exports.emit = async function (collectionName, json, res) {
     res.send({
       code: 200,
       msg: '修改成功'
+    })
+  })
+}
+
+// 新增管理员
+let num = 0
+exports.addAdmin = async function (collectionName, json, res) {
+  let client = await connectDB(url)
+  let db = client.db('mydb')
+  let data1 = []
+  for (let i = 0; i < 10; i++) {
+    num++
+    let data = {
+      id: num,
+      userName: 'admin' + i,
+      password: json.password,
+      roles: ['admin']
+    }
+    data1.push(data)
+  }
+  // console.log(db); insertMany insertOne
+  db.collection(collectionName).insertMany(data1, (err, result) => {
+    if (err) throw err
+    res.send({
+      code: 200,
+      msg: '新增管理员成功'
     })
   })
 }

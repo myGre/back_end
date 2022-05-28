@@ -1,21 +1,22 @@
 var express = require('express')
 var router = express.Router()
 var mdb = require('../libs/workList')
+var communal = require('../libs/communal')
 
-// 新增学生
+// 新增游戏
 router.post('/addGame',(req, res, next) => {
   // 添加数据库回调函数
   mdb.insert('workList', req.body, res)
 })
-// 编辑某一学生信息
+// 编辑某一游戏
 router.post('/emitGame', (req, res, next) => {
   mdb.emit('workList', req.body, res)
 })
-// 删除某一学生
+// 删除某一游戏
 router.post('/del', (req, res, next) => {
-  mdb.del('workList', req.body.id, res)
+  communal.del('workList', req.body._id, res)
 })
-// 搜索学生
+// 搜索游戏
 router.post('/search', (req, res, next) => {
   mdb.search('workList', req.body.handyGame, res)
 })
@@ -25,7 +26,7 @@ router.post('/search', (req, res, next) => {
   @pageSize: 默认5
 */
 router.post('/gameList', async (req, res, next) => {
-  mdb.studentList('workList', req.body, res)
+  communal.listMsg('workList', req.body, res)
 })
 // 导出
 module.exports = router

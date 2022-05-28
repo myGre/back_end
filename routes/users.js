@@ -19,23 +19,6 @@ router.post('/emitPassword', (req, res, next) => {
 })
 // 新增管理员
 router.post('/admin', (req, res, next) => {
-  let data1 = []
-  for (let i = 0; i < 10; i++) {
-    let data = {
-      id: i,
-      userName: 'admin' + i,
-      password: req.body.password,
-      roles: 'admin'
-    }
-    data1.push(data)
-  }
-  // console.log(db); insertMany insertOne
-  db.collection('admin').insertMany(data1, (err, result) => {
-    if (err) throw err
-    res.send({
-      code: 200,
-      msg: '新增管理员成功'
-    })
-  })
+  mdbUser.addAdmin('admin', req.body, res)
 })
 module.exports = router;

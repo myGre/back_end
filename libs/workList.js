@@ -5,16 +5,8 @@
  * @param {String} url：数据库的地址
  */
 let url = 'mongodb://localhost:27017/mydb'
-
-function connectDB(url) {
-  let MongoClient = require('mongodb').MongoClient
-  let client = MongoClient.connect(url, {
-    useNewUrlParser: true
-  })
-  console.log('连接成功')
-  return client
-}
-
+var mdb = require('../libs/mongod')
+var communal = require('../libs/communal')
 /**
  * @desc 向数据库中插入数据的方法
  * @author Cherry
@@ -24,22 +16,17 @@ function connectDB(url) {
  */
 exports.insert = async function (collectionName, json, res) {
   // 连接数据库
-  let client = await connectDB(url)
+  let client = await mdb.connectDB(url)
   let db = client.db('mydb')
-  let total = await db.collection(collectionName).count()
   // 要存入数据库的数据
-  let data = {
-    id: total,
-    handyGame: json.handyGame,
-    remark: json.remark,
-    addTime: formatDate(new Date()),
-    time: json.time
-  }
-  // 在数据库中查找该学生是否存在
+  let handyGame = json.handyGame
+  let remark = json.remark 
+  let time = json.time
+  // 在数据库中查找该作业是否存在
   let pass = db.collection(collectionName).find({
     handyGame: json.handyGame
   })
-  pass.toArray((err, result) => {
+  pass.toArray( async(err, result) => {
     if (err) throw err
     if (result.length > 0) {
       res.send({
@@ -48,6 +35,13 @@ exports.insert = async function (collectionName, json, res) {
       })
     } else {
       // 新增数据
+      let data = {
+        _id: await communal.increaseId2(db) ,
+        handyGame,
+        remark,
+        addTime: communal.formatDate(new Date()),
+        time
+      }
       db.collection(collectionName).insertOne(data, (err, result) => {
         if (err) throw err
         // 关闭数据库
@@ -73,10 +67,10 @@ exports.insert = async function (collectionName, json, res) {
  */
 exports.search = async function (collectionName, name, res) {
   // 连接数据库
-  let client = await connectDB(url)
+  let client = await mdb.connectDB(url)
   let db = client.db('mydb')
   let data = db.collection(collectionName).find({
-    handyGame: name
+    handyGame: {$regex: name}
   })
   let total = await data.count()
   data.toArray((err, result) => {
@@ -95,65 +89,6 @@ exports.search = async function (collectionName, name, res) {
 }
 
 /**
- * @desc 学生列表数据的方法
- * @author xiaochao
- * @date 某年某月某日
- * @param {String} collectionName：具体要操作的集合
- * @param {Object} json：前台传过来的数据
- */
-exports.studentList = async function (collectionName, json, res) {
-  let client = await connectDB(url)
-  let db = client.db('mydb')
-  let total = await db.collection(collectionName).count()
-  let page = Number((json.page - 1) * Number(json.pageSize || 5))
-  // 计算总条数
-  let data = db.collection(collectionName).find().sort({
-    id: -1
-  }).limit(json.pageSize || 5).skip(page);
-  // let data = db.collection('students').find()
-  data.toArray((err, result) => {
-    if (err) throw err
-    // console.log(result);
-    client.close(() => {
-      console.log('关闭数据库成功');
-    })
-    res.send({
-      code: 200,
-      msg: '学生列表获取成功',
-      data: {
-        list: result,
-        pageSize: json.pageSize || 5,
-        page: json.page || 1,
-        total
-      }
-    })
-  })
-}
-/**
- * @desc 删除数据库中的某条信息
- * @author xiaochao
- * @date 某年某月某日
- * @param {String} collectionName：具体要操作的集合
- * @param {String} id：某条数据的ID
- */
-exports.del = async function (collectionName, id, res) {
-  let client = await connectDB(url)
-  let db = client.db('mydb')
-  db.collection(collectionName).deleteOne({
-    id
-  }, (err, result) => {
-    if (err) throw err
-    client.close(() => {
-      console.log('关闭数据库');
-    })
-    res.send({
-      code: 200,
-      msg: '删除成功'
-    })
-  })
-}
-
-/**
  * @desc 向数据库修改数据的方法
  * @author Cherry
  * @date 某年某月某日
@@ -161,17 +96,17 @@ exports.del = async function (collectionName, id, res) {
  * @param {Object} json：要修改的数据
  */
 exports.emit = async function (collectionName, json, res) {
-  let client = await connectDB(url)
+  let client = await mdb.connectDB(url)
   let db = client.db('mydb')
   let {
-    id,
+    _id,
     addTime,
     handyGame,
     remark,
     time
   } = json
   db.collection(collectionName).updateOne({
-    id
+    _id
   }, {
     $set: {
       addTime,
@@ -190,12 +125,3 @@ exports.emit = async function (collectionName, json, res) {
     })
   })
 }
-
-var formatDate = function (date) {
-  var y = date.getFullYear();
-  var m = date.getMonth() + 1;
-  m = m < 10 ? '0' + m : m;
-  var d = date.getDate();
-  d = d < 10 ? ('0' + d) : d;
-  return y + '-' + m + '-' + d;
-};

@@ -8,13 +8,6 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 const JwtUtil = require('./jwt')
 
-// // 导入数据库连接
-// var gdb = require('./libs/config')
-// var db;
-// (async ()=>{
-//   db = await gdb()
-// })();
-
 var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

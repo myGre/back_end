@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router()
 var mdb = require('../libs/studentList')
+var communal = require('../libs/communal')
 // 新增学生
 router.post('/addStudent',(req, res, next) => {
     // 添加数据库回调函数
@@ -12,11 +13,11 @@ router.post('/emitStudent', (req, res, next) => {
 })
 // 删除某一学生
 router.post('/del', (req, res, next) => {
-    mdb.del('students', req.body.id, res)
+    communal.del('students', req.body._id, res)
 })
 // 搜索学生
 router.post('/search', (req, res, next) => {
-    mdb.search('students', req.body.userName, res)
+    communal.listMsg('students', req.body, res)
 })
 // 学生列表详情
 /* 
@@ -24,7 +25,7 @@ router.post('/search', (req, res, next) => {
     @pageSize: 默认5
 */
 router.post('/studentList', async (req, res, next) => {
-    mdb.studentList('students', req.body, res)
+    communal.listMsg('students', req.body, res)
 })
 // 导出
 module.exports = router
