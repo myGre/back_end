@@ -36,7 +36,7 @@ exports.insert = async function (collectionName, json, res) {
     } else {
       // 新增数据
       let data = {
-        _id: await communal.increaseId2(db) ,
+        _id: await communal.increaseId(db) ,
         handyGame,
         remark,
         addTime: communal.formatDate(new Date()),

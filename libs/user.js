@@ -1,6 +1,6 @@
 let url = 'mongodb://localhost:27017/mydb'
 var JwtUtil = require('../jwt')
-
+let communal = require('./communal')
 function connectDB(url) {
   let MongoClient = require('mongodb').MongoClient
   let client = MongoClient.connect(url, {
@@ -142,15 +142,19 @@ exports.emit = async function (collectionName, json, res) {
 }
 
 // 新增管理员
-let num = 0
 exports.addAdmin = async function (collectionName, json, res) {
   let client = await connectDB(url)
   let db = client.db('mydb')
+  // db.collection('counter').insertOne({
+  //   _id: 'userId',
+  //   like:1,
+  //   // gameId:1,
+  //   // studentId: 1,
+  // })
   let data1 = []
   for (let i = 0; i < 10; i++) {
-    num++
     let data = {
-      id: num,
+      _id: await communal.increaseId(db),
       userName: 'admin' + i,
       password: json.password,
       roles: ['admin']

@@ -18,7 +18,7 @@ router.post('/emitPassword', (req, res, next) => {
   mdbUser.emit('admin', req.body, res)
 })
 // 新增管理员
-router.post('/admin', (req, res, next) => {
+router.post('/addAdmin', (req, res, next) => {
   mdbUser.addAdmin('admin', req.body, res)
 })
 module.exports = router;

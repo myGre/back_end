@@ -4,30 +4,18 @@ const mdb = require('./mongod')
 
 // 计算学生自增_id
 // db.collection('counter').insertOne({
-//   id: 'userId',
-//   like: 1
+//   _id: 'userId',
+    // like: 1
 // })
 exports.increaseId = async function(db) {
   var result = await db.collection('counter').findOneAndUpdate(
-      { id: 'userId' },
-      {$inc: { like: 1 } },
-      {new:true}
-  )
-    return result.value.like
-}
-// 计算插入的作业自增_id
-// db.collection('counter2').insertOne({
-//   _id: 'userId',
-//   like: 1
-// })
-exports.increaseId2 = async function(db) {
-  var result = await db.collection('counter2').findOneAndUpdate(
       { _id: 'userId' },
       {$inc: { like: 1 } },
       {new:true}
   )
     return result.value.like
 }
+
 // 日期函数
 exports.formatDate = function (date) {
   var y = date.getFullYear();
